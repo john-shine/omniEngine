@@ -210,8 +210,6 @@ def reorgRollback(block):
     expireAccepts(-(block+1))
     expireCrowdsales(-BlockTime, "Omni")
       
-    #delete from txstats once we rollback all other data
-    dbExecute("delete from txstats where blocknumber>%s",[block])
     #delete from blocks once we rollback all other data
     dbExecute("delete from blocks where blocknumber>%s",[block])
     #reset txdbserialnum field to what it was before these blocks/tx went in
@@ -224,70 +222,14 @@ def updateTxStats():
     btime=ROWS[0][1]
     ROWS=dbSelect("select max(blocknumber) from txstats")
     lastblock=ROWS[0][0]
-    nextblock=lastblock+1
-    printdebug(("TxStats: lastblock",lastblock,", curblock:",str(curblock)),0)
-    while (nextblock <= curblock):
-      if updateTxStatsBlock(nextblock):
-        printdebug(("TxStats: Block",nextblock,"processed"),0)
-      else:
-        printdebug(("TxStats: Block",nextblock,"FAILED"),0)
-      nextblock+=1
-
-
-def updateTxStatsBlock(blocknumber):
-    try:
-      _block=int(blocknumber)
-    except:
-      return False
-    ROWS=dbSelect("select blocknumber,blocktime from blocks where blocknumber=%s order by blocknumber desc limit 1",[_block])
-    curblock=ROWS[0][0]
-    btime=ROWS[0][1]
-    try:
-      TROWS=dbSelect("select count(*) from transactions where txrecvtime >= %s - '1 day'::INTERVAL and txrecvtime <= %s and txdbserialnum>0",(btime,btime))
-      txs=TROWS[0][0]
+    if (curblock > lastblock):
+      ROWS=dbSelect("select count(*) from transactions where txrecvtime >= %s - '1 day'::INTERVAL and txrecvtime <= %s and txdbserialnum>0",(btime,btime))
+      txs=ROWS[0][0]
       BROWS=dbSelect("select count(*) from transactions where txblocknumber=%s",[curblock])
       btxs=BROWS[0][0]
-      txfsum=dbSelect("select atx.propertyid, sum(atx.balanceavailablecreditdebit), sp.propertydata->>'divisible' as divisible, count(atx.propertyid) as count "
-                     "from addressesintxs atx, transactions tx, smartproperties sp "
-                     "where atx.txdbserialnum=tx.txdbserialnum and atx.propertyid=sp.propertyid and sp.protocol='Omni' and tx.txstate='valid' and "
-                     "tx.txblocknumber=%s and atx.addressrole='recipient' group by atx.propertyid, sp.propertydata->>'divisible'",[curblock])
-      try:
-        VROWS=dbSelect("select sum(cast(value->>'total_usd' as numeric)) from txstats where blocktime >= %s - '1 day'::INTERVAL and blocktime <= %s",(btime,btime))
-        tval_day=int(VROWS[0][0])
-      except:
-        tval_day=0
-      valuelist={}
-      total=0
-      rbtcusd=dbSelect("select rate1for2 from exchangerates where protocol1='Fiat' and protocol2='Bitcoin' and propertyid1=0 and propertyid2=0 order by asof desc limit 1")
-      try:
-        btcusd=decimal.Decimal(rbtcusd[0][0])
-      except:
-        btcusd=decimal.Decimal(0)
-      for t in txfsum:
-        pid=t[0]
-        volume=decimal.Decimal(t[1])
-        divisible=t[2]
-        count=t[3]
-        if divisible in ['true','True',True]:
-          volume=decimal.Decimal(volume)/decimal.Decimal(1e8)
-        rawrate=dbSelect("select rate1for2 from exchangerates where protocol1='Bitcoin' and protocol2='Omni' and propertyid1=0 and propertyid2=%s order by asof desc limit 1",[pid])
-        try:
-          rate=decimal.Decimal(rawrate[0][0])
-        except:
-          rate=decimal.Decimal(0)
-        value=rate*btcusd*volume
-        rateusd=rate*btcusd
-        srate=str(float(rateusd)).split('.')
-        prate=decimal.Decimal(srate[0]+'.'+srate[1][:8])
-        value=int(round(value))
-        total+=value
-        valuelist[pid]={'rate_usd':str(prate),'volume':str(volume),'value_usd_rounded':value, 'tx_count': count}
-      fvalue={'total_usd':total, 'details':valuelist, 'value_24hr':tval_day}
-      dbExecute("insert into txstats (blocknumber,blocktime,txcount,blockcount,value) values(%s,%s,%s,%s,%s)",
-                (curblock, btime, txs, btxs, json.dumps(fvalue)))
-      return True
-    except:
-      return False
+      dbExecute("insert into txstats (blocknumber,blocktime,txcount,blockcount) values(%s,%s,%s,%s)",
+                (curblock, btime, txs,btxs))
+
 
 def checkPending(blocktxs):
     #Check any pending tx to see if 1. They are in the current block of tx's we are processing or 2. 1 days have passed since broadcast and they are no longer in network.
@@ -342,10 +284,7 @@ def updateAddPending():
     sbacd=None
     rbacd=None
     sender = rawtx['sendingaddress']
-    try:
-      receiver = rawtx['referenceaddress']
-    except:
-      receiver=''
+    receiver = rawtx['referenceaddress']
     txtype = rawtx['type_int']
     txversion = rawtx['version']
     txhash = rawtx['txid']
@@ -1668,13 +1607,16 @@ def insertTxAddr(rawtx, Protocol, TxDBSerialNum, Block):
           value_neg=0
         else: 
           #if rawtx['result']['divisible']:
-          if getDivisible(rawtx):
-            value=int(decimal.Decimal(str(rawtx['result']['amount']))*decimal.Decimal(1e8))
-          else:
-            value=int(rawtx['result']['amount'])
-          value_neg=(value*-1)
- 
+          try:
+            if getDivisible(rawtx):
+              value=int(decimal.Decimal(str(rawtx['result']['amount']))*decimal.Decimal(1e8))
+            else:
+              value=int(rawtx['result']['amount'])
+          except:
+            printdebug(("Invalid Amount: ",rawtx['result']['amount'], "continuing"), 0)
+            value = 0
 
+          value_neg=(value*-1)
 
       if txtype == 0:
         #Simple Send
@@ -1865,6 +1807,7 @@ def insertTxAddr(rawtx, Protocol, TxDBSerialNum, Block):
           #Right now payments are only in btc
           #we already insert btc payments in btc processing might need to skip this
           PropertyIDPaid = 0
+          #AddressTxIndex =  Do we need to change this?
 
           if getdivisible_MP(PropertyIDBought):
             AmountBought=int(decimal.Decimal(str(payment['amountbought']))*decimal.Decimal(1e8))
@@ -1892,7 +1835,6 @@ def insertTxAddr(rawtx, Protocol, TxDBSerialNum, Block):
                     "values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                     (Seller, PropertyIDBought, Protocol, TxDBSerialNum, AddressTxIndex, AddressRole, BalanceAvailableCreditDebit, BalanceReservedCreditDebit, BalanceAcceptedCreditDebit, saletxdbserialnum))
 
-          AddressTxIndex+=1
           if Valid:
             updateBalance(Seller, Protocol, PropertyIDBought, Ecosystem, BalanceAvailableCreditDebit, BalanceReservedCreditDebit, BalanceAcceptedCreditDebit, TxDBSerialNum)
 
@@ -1906,7 +1848,6 @@ def insertTxAddr(rawtx, Protocol, TxDBSerialNum, Block):
                     "values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                     (Buyer, PropertyIDBought, Protocol, TxDBSerialNum, AddressTxIndex, AddressRole, BalanceAvailableCreditDebit, BalanceReservedCreditDebit, BalanceAcceptedCreditDebit,offertxdbserialnum))
 
-          AddressTxIndex+=1
           if Valid:
             updateBalance(Buyer, Protocol, PropertyIDBought, Ecosystem, BalanceAvailableCreditDebit, BalanceReservedCreditDebit, BalanceAcceptedCreditDebit, TxDBSerialNum)
 

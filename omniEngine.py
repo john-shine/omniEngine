@@ -164,21 +164,23 @@ else:
       #MP tx processing
       for tx in block_data_MP['result']:
         rawtx=gettransaction_MP(tx)
-  
+        printdebug('propertyid:{}'.format(rawtx.get('result',{}).get('propertyid',999)),0)
+        if rawtx.get('result', {}).get('propertyid', 0) == 31:
+          
         #Process the bare tx and insert it into the db
         #TxDBSerialNum can be specified for explit insert or left out to auto assign from next value in db
-        serial=insertTx(rawtx, Protocol, height, x, TxDBSerialNum)
+            serial=insertTx(rawtx, Protocol, height, x, TxDBSerialNum)
         #serial=insertTx(rawtx, Protocol, height, x)
 
         #Process all the addresses in the tx and insert them into db
         #This also calls the functions that update the DEx, SmartProperty and AddressBalance tables
-        insertTxAddr(rawtx, Protocol, serial, currentBlock)
+            insertTxAddr(rawtx, Protocol, serial, currentBlock)
 
         #increment the number of transactions
-        TxDBSerialNum+=1
+            TxDBSerialNum+=1
 
         #increment tx sequence number in block
-        x+=1    
+            x+=1    
 
       #Clean up any offers/crowdsales that expired in this block
       #Run these after we processes the tx's in the block as tx in the current block would be valid

@@ -51,12 +51,11 @@ def get_balancedata(address):
             btc_balance[ 'value' ] = str(long(0))
           else:
             try:
-              #if balrow[4] < 0:
-              #  res['value'] = str(long( out ) + long(balrow[4]))
-              #else:
-              res['value'] = str(long( out ))
+              if balrow[4] < 0:
+                res['value'] = str(long( out ) + long(balrow[4]))
+              else:
+                res['value'] = str(long( out ))
             except ValueError:
-              #btc_balance[ 'value' ] = str(long(-555))
               btc_balance[ 'value' ] = str(long(0))
         else:
           #get regular balance from db
@@ -158,12 +157,11 @@ def get_bulkbalancedata(addresses):
             btc_balance[ 'value' ] = str(long(0))
           else:
             try:
-              #if balrow[4] < 0:
-              #  res['value'] = str(long( out ) + long(balrow[4]))
-              #else:
-              res['value'] = str(long( out ))
+              if balrow[4] < 0:
+                res['value'] = str(long( out ) + long(balrow[4]))
+              else:
+                res['value'] = str(long( out ))
             except ValueError:
-              #btc_balance[ 'value' ] = str(long(-555))
               btc_balance[ 'value' ] = str(long(0))
         else:
           #get regular balance from db
