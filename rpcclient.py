@@ -1,12 +1,14 @@
 import requests, getpass
 import time, json
+import sys
 
 class RPCHost():
     def __init__(self):
         USER=getpass.getuser()
         self._session = requests.Session()
+        config_file = '/home/'+USER+'/.bitcoin/bitcoin.conf'
         try:
-            with open('/home/'+USER+'/.bitcoin/bitcoin.conf') as fp:
+            with open(config_file) as fp:
                 RPCPORT="8332"
                 RPCHOST="localhost"
                 RPCSSL=False
@@ -28,8 +30,9 @@ class RPCHost():
                         else:
                             RPCSSL=False
         except IOError as e:
-            response='{"error": "Unable to load bitcoin config file. Please Notify Site Administrator"}'
-            return response
+            print('{"error": "Unable to load bitcoin config file: %s. Please Notify Site Administrator"}' % config_file)
+            sys.exit(1)
+
         if RPCSSL:
             self._url = "https://"+RPCUSER+":"+RPCPASS+"@"+RPCHOST+":"+RPCPORT
         else:

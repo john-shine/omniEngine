@@ -1,4 +1,10 @@
-import config
+import sys
+try:
+    import config
+except ImportError:
+    print('config.py is not exist, is it set?')
+    sys.exit(1)
+
 import redis
 import json
 
