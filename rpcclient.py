@@ -1,12 +1,16 @@
-import requests, getpass
-import time, json
+import getpass
+import json
 import sys
+import time
+
+import requests
+
 
 class RPCHost:
     def __init__(self):
-        USER=getpass.getuser()
+        USER = getpass.getuser()
         self._session = requests.Session()
-        config_file = '/home/'+USER+'/.bitcoin/bitcoin.conf'
+        config_file = '/home/' + USER + '/.bitcoin/bitcoin.conf'
         try:
             RPCUSER = 'bitcoinrpc'
             RPCPASS = '0b21d20725d6db34c3a980e26bb5425c'
@@ -39,10 +43,11 @@ class RPCHost:
             sys.exit(1)
 
         if RPCSSL:
-            self._url = "https://"+RPCUSER+":"+RPCPASS+"@"+RPCHOST+":"+RPCPORT
+            self._url = "https://" + RPCUSER + ":" + RPCPASS + "@" + RPCHOST + ":" + RPCPORT
         else:
-            self._url = "http://"+RPCUSER+":"+RPCPASS+"@"+RPCHOST+":"+RPCPORT
+            self._url = "http://" + RPCUSER + ":" + RPCPASS + "@" + RPCHOST + ":" + RPCPORT
         self._headers = {'content-type': 'application/json'}
+
     def call(self, rpcMethod, *params):
         payload = json.dumps({"method": rpcMethod, "params": list(params), "jsonrpc": "2.0"})
         tries = 10
@@ -55,7 +60,9 @@ class RPCHost:
                 if tries == 0:
                     raise Exception('Failed to connect for remote procedure call.')
                 hadFailedConnections = True
-                print("Couldn't connect for remote procedure call, will sleep for ten seconds and then try again ({} more tries)".format(tries))
+                print(
+                    "Couldn't connect for remote procedure call, will sleep for ten seconds and then try again ({} more tries)".format(
+                        tries))
                 time.sleep(10)
             else:
                 if hadConnectionFailures:
@@ -66,143 +73,218 @@ class RPCHost:
         responseJSON = response.json()
         if 'error' in responseJSON and responseJSON['error'] is not None:
             raise Exception('Error in ' + rpcMethod + ' RPC call: ' + str(responseJSON['error']))
-        #return responseJSON['result']
+        # return responseJSON['result']
         return responseJSON
 
 
+# Define / Create RPC connection
+host = RPCHost()
 
-#Define / Create RPC connection
-host=RPCHost()
 
-#Bitcoin Generic RPC calls
+# Bitcoin Generic RPC calls
 def getinfo():
     return host.call("getinfo")
 
+
 def getrawtransaction(txid):
-    return host.call("getrawtransaction", txid , 1)
+    return host.call("getrawtransaction", txid, 1)
+
 
 def getblockhash(block):
     return host.call("getblockhash", block)
 
+
 def getblock(hash):
     return host.call("getblock", hash)
 
+
 def sendrawtransaction(tx):
     try:
-      return host.call("sendrawtransaction", tx)
+        return host.call("sendrawtransaction", tx)
     except Exception, e:
-      return e
+        return e
+
 
 def validateaddress(addr):
     return host.call("validateaddress", addr)
 
-def createrawtransaction(ins,outs):
-    return host.call("createrawtransaction",ins,outs)
+
+def createrawtransaction(ins, outs):
+    return host.call("createrawtransaction", ins, outs)
+
 
 def decoderawtransaction(rawtx):
     return host.call("decoderawtransaction", rawtx)
 
+
 def omni_decodetransaction(rawtx):
     return host.call("omni_decodetransaction", rawtx)
+
 
 def estimateFee(blocks=4):
     return host.call("estimatefee", blocks)
 
-def gettxout(txid,vout,unconfirmed=True):
-    return host.call("gettxout",txid,vout,unconfirmed)
+
+def gettxout(txid, vout, unconfirmed=True):
+    return host.call("gettxout", txid, vout, unconfirmed)
+
 
 ## Omni Specific RPC calls
 def getbalance_MP(addr, propertyid):
     return host.call("getbalance_MP", addr, propertyid)
 
+
 def getallbalancesforaddress_MP(addr):
     return host.call("getallbalancesforaddress_MP", addr)
+
 
 def getallbalancesforid_MP(propertyid):
     return host.call("getallbalancesforid_MP", propertyid)
 
+
 def gettransaction_MP(tx):
     return host.call("gettransaction_MP", tx)
+
 
 def listblocktransactions_MP(height):
     return host.call("listblocktransactions_MP", height)
 
+
 def getproperty_MP(propertyid):
     return host.call("getproperty_MP", propertyid)
+
 
 def listproperties_MP():
     return host.call("listproperties_MP")
 
+
 def getcrowdsale_MP(propertyid):
     return host.call("getcrowdsale_MP", propertyid)
+
 
 def getactivecrowdsales_MP():
     return host.call("getactivecrowdsales_MP")
 
+
 def getactivedexsells_MP():
     return host.call("getactivedexsells_MP")
+
 
 def getdivisible_MP(propertyid):
     return getproperty_MP(propertyid)['result']['divisible']
 
+
 def getgrants_MP(propertyid):
     return host.call("getgrants_MP", propertyid)
+
 
 def gettradessince_MP():
     return host.call("gettradessince_MP")
 
+
 def gettrade(txhash):
     return host.call("omni_gettrade", txhash)
 
+
 def getsto_MP(txid):
-    return host.call("getsto_MP", txid , "*")
+    return host.call("getsto_MP", txid, "*")
+
 
 def omni_listpendingtransactions():
     return host.call("omni_listpendingtransactions")
 
+
 def omni_getpayload(txid):
-    return host.call("omni_getpayload",txid)
+    return host.call("omni_getpayload", txid)
+
 
 def getsimplesendPayload(propertyid, amount):
     return host.call("omni_createpayload_simplesend", int(propertyid), amount)
+
+
 def getsendallPayload(ecosystem):
     return host.call("omni_createpayload_sendall", int(ecosystem))
+
+
 def getdexsellPayload(propertyidforsale, amountforsale, amountdesired, paymentwindow, minacceptfee, action):
-    return host.call("omni_createpayload_dexsell", int(propertyidforsale), amountforsale, amountdesired, int(paymentwindow), minacceptfee, int(action))
+    return host.call("omni_createpayload_dexsell", int(propertyidforsale), amountforsale, amountdesired,
+                     int(paymentwindow), minacceptfee, int(action))
+
+
 def getdexacceptPayload(propertyid, amount):
     return host.call("omni_createpayload_dexaccept", int(propertyid), amount)
+
+
 def getstoPayload(propertyid, amount):
     return host.call("omni_createpayload_sto", int(propertyid), amount)
+
+
 def getgrantPayload(propertyid, amount, memo):
     return host.call("omni_createpayload_grant", int(propertyid), amount, memo)
+
+
 def getrevokePayload(propertyid, amount, memo):
     return host.call("omni_createpayload_revoke", int(propertyid), amount, memo)
+
+
 def getchangeissuerPayload(propertyid):
     return host.call("omni_createpayload_changeissuer", int(propertyid))
+
+
 def gettradePayload(propertyidforsale, amountforsale, propertiddesired, amountdesired):
-    return host.call("omni_createpayload_trade", int(propertyidforsale), amountforsale, int(propertiddesired), amountdesired)
-def getissuancefixedPayload(ecosystem, divisible, previousid, category,subcategory, name, url, data, amount):
-    return host.call("omni_createpayload_issuancefixed", int(ecosystem), int(divisible), int(previousid), category,subcategory, name, url, data, amount)
-def getissuancecrowdsalePayload(ecosystem, divisible, previousid, category,subcategory, name, url, data, propertyiddesired, tokensperunit, deadline, earlybonus, issuerpercentage):
-    return host.call("omni_createpayload_issuancecrowdsale", int(ecosystem), int(divisible), int(previousid), category,subcategory, name, url, data, int(propertyiddesired), tokensperunit, int(deadline), int(earlybonus), int(issuerpercentage))
-def getissuancemanagedPayload(ecosystem, divisible, previousid, category,subcategory, name, url, data):
-    return host.call("omni_createpayload_issuancemanaged", int(ecosystem), int(divisible), int(previousid), category,subcategory, name, url, data)
+    return host.call("omni_createpayload_trade", int(propertyidforsale), amountforsale, int(propertiddesired),
+                     amountdesired)
+
+
+def getissuancefixedPayload(ecosystem, divisible, previousid, category, subcategory, name, url, data, amount):
+    return host.call("omni_createpayload_issuancefixed", int(ecosystem), int(divisible), int(previousid), category,
+                     subcategory, name, url, data, amount)
+
+
+def getissuancecrowdsalePayload(ecosystem, divisible, previousid, category, subcategory, name, url, data,
+                                propertyiddesired, tokensperunit, deadline, earlybonus, issuerpercentage):
+    return host.call("omni_createpayload_issuancecrowdsale", int(ecosystem), int(divisible), int(previousid), category,
+                     subcategory, name, url, data, int(propertyiddesired), tokensperunit, int(deadline),
+                     int(earlybonus), int(issuerpercentage))
+
+
+def getissuancemanagedPayload(ecosystem, divisible, previousid, category, subcategory, name, url, data):
+    return host.call("omni_createpayload_issuancemanaged", int(ecosystem), int(divisible), int(previousid), category,
+                     subcategory, name, url, data)
+
+
 def getclosecrowdsalePayload(propertyid):
     return host.call("omni_createpayload_closecrowdsale", int(propertyid))
+
+
 def getcanceltradesbypricePayload(propertyidforsale, amountforsale, propertiddesired, amountdesired):
-    return host.call("omni_createpayload_canceltradesbyprice", int(propertyidforsale), amountforsale, int(propertiddesired), amountdesired)
+    return host.call("omni_createpayload_canceltradesbyprice", int(propertyidforsale), amountforsale,
+                     int(propertiddesired), amountdesired)
+
+
 def getcanceltradesbypairPayload(propertyidforsale, propertiddesired):
     return host.call("omni_createpayload_canceltradesbypair", int(propertyidforsale), int(propertiddesired))
+
+
 def getcancelalltradesPayload(ecosystem):
     return host.call("omni_createpayload_cancelalltrades", int(ecosystem))
+
+
 def createrawtx_opreturn(payload, rawtx=None):
     return host.call("omni_createrawtx_opreturn", rawtx, payload)
+
+
 def createrawtx_multisig(payload, seed, pubkey, rawtx=None):
     return host.call("omni_createrawtx_multisig", rawtx, payload, seed, pubkey)
+
+
 def createrawtx_input(txhash, index, rawtx=None):
     return host.call("omni_createrawtx_input", rawtx, txhash, index)
+
+
 def createrawtx_reference(destination, rawtx=None):
     return host.call("omni_createrawtx_reference", rawtx, destination)
+
+
 def createrawtx_change(rawtx, previnputs, destination, fee):
     return host.call("omni_createrawtx_change", rawtx, previnputs, destination, fee)
- 
