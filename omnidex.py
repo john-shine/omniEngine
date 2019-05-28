@@ -6,7 +6,7 @@ from math import ceil
 
 def fixDecimal(value):
     try:
-      return str(ceil(float(value)*(1e8))/1e8)
+      return str(ceil(float(value) * 1e8) / 1e8)
     except Exception as e:
       print "couldn't convert ",value,"got error: ",e
 
@@ -26,7 +26,7 @@ def getOrderbook(lasttrade=0, lastpending=0):
     if len(pending) > 0 and len(pending[0]) > 0:
       pending=int(pending[0][0])
 
-    if (trade > int(lasttrade) or pending < int(lastpending)):
+    if trade > int(lasttrade) or pending < int(lastpending):
       AO=dbSelect("select distinct propertyiddesired, propertyidselling from activeoffers "
                   "where offerstate='active' order by propertyiddesired")
       if len(AO) > 0:

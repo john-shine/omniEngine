@@ -224,7 +224,7 @@ def updateTxStats():
     btime=ROWS[0][1]
     ROWS=dbSelect("select max(blocknumber) from txstats")
     lastblock=ROWS[0][0]
-    if (curblock > lastblock):
+    if curblock > lastblock:
       ROWS=dbSelect("select count(*) from transactions where txrecvtime >= %s - '1 day'::INTERVAL and txrecvtime <= %s and txdbserialnum>0",(btime,btime))
       txs=ROWS[0][0]
       BROWS=dbSelect("select count(*) from transactions where txblocknumber=%s",[curblock])
@@ -384,8 +384,8 @@ def sortSTO(list):
     return list
 
 def sendToOwners(Sender, Amount, PropertyID, Protocol, TxDBSerialNum, owners=None):
-    printdebug(("Starting sendToOwners:"),8)
-    printdebug(("Sender, Amount, PropertyID, Protocol, TxDBSerialNum, owners"),9)
+    printdebug("Starting sendToOwners:", 8)
+    printdebug("Sender, Amount, PropertyID, Protocol, TxDBSerialNum, owners", 9)
     printdebug((Sender, Amount, PropertyID, Protocol, TxDBSerialNum, owners, "\n"),9)
 
     if owners is None:
@@ -504,8 +504,8 @@ def expireAccepts(Block):
       dbExecute("update offeraccepts set expiredstate=true where expireblock <= %s and expiredstate=false", [Block] )
 
 def updateAccept(Buyer, Seller, AmountBought, PropertyIDBought, TxDBSerialNum):
-    printdebug(("Starting updateAccepts:"),8)
-    printdebug(("Buyer, Seller, AmountBought, PropertyIDBought, TxDBSerialNum"),9)
+    printdebug("Starting updateAccepts:", 8)
+    printdebug("Buyer, Seller, AmountBought, PropertyIDBought, TxDBSerialNum", 9)
     printdebug((Buyer, Seller, AmountBought, PropertyIDBought, TxDBSerialNum, "\n"),9)
 
     #user has paid for their accept (either partially or in full) update accordingly.
@@ -559,8 +559,8 @@ def updateAccept(Buyer, Seller, AmountBought, PropertyIDBought, TxDBSerialNum):
     return saletxdbserialnum,offertxdbserialnum
 
 def offerAccept (rawtx, TxDBSerialNum, Block):
-    printdebug(("Starting offerAccept"),8)
-    printdebug(("rawtx, TxDBSerialNum, Block"),9)
+    printdebug("Starting offerAccept", 8)
+    printdebug("rawtx, TxDBSerialNum, Block", 9)
     printdebug((rawtx, TxDBSerialNum, Block, "\n"),9)
 
     BuyerAddress=rawtx['result']['sendingaddress']
@@ -618,8 +618,8 @@ def offerAccept (rawtx, TxDBSerialNum, Block):
               (BuyerAddress, amountaccepted, TxDBSerialNum, saletxdbserialnum, Block, dexstate, expireblock,expiredstate) )
 
 def updatedex(rawtx, TxDBSerialNum, Protocol):
-    printdebug(("Starting updatedex"),8)
-    printdebug(("rawtx, TxDBSerialNum, Protocol"),9)
+    printdebug("Starting updatedex", 8)
+    printdebug("rawtx, TxDBSerialNum, Protocol", 9)
     printdebug((rawtx, TxDBSerialNum, Protocol, "\n"),9)
 
     Address=rawtx['result']['sendingaddress']
@@ -711,8 +711,8 @@ def updatedex(rawtx, TxDBSerialNum, Protocol):
 
 
 def updatedex2(rawtx, rawtrade, TxDBSerialNum):
-    printdebug(("Starting updatedex2"),8)
-    printdebug(("rawtx, rawtrade, TxDBSerialNum"),9)
+    printdebug("Starting updatedex2", 8)
+    printdebug("rawtx, rawtrade, TxDBSerialNum", 9)
     printdebug((rawtx, rawtrade, TxDBSerialNum, "\n"),9)
 
     Address=rawtx['result']['sendingaddress']
@@ -807,11 +807,11 @@ def updatemarketvolume():
 
 
 def updatemarkets(propertyidselling,propertyiddesired,TxDBSerialNum, rawtx):
-    printdebug(("Starting updatemarkets"),4)
-    printdebug(("updatemarkets: propertyidselling,propertyiddesired,TxDBSerialNum"),4)
+    printdebug("Starting updatemarkets", 4)
+    printdebug("updatemarkets: propertyidselling,propertyiddesired,TxDBSerialNum", 4)
     printdebug((propertyidselling,propertyiddesired,TxDBSerialNum),4)
-    printdebug(("updatemarkets: rawtx"),8)
-    printdebug((rawtx),8)
+    printdebug("updatemarkets: rawtx", 8)
+    printdebug(rawtx, 8)
     #base = propertyiddesired
     #marketid = propertyidselling
     lasttxdbserialnum = TxDBSerialNum
@@ -892,10 +892,10 @@ def updatemarkets(propertyidselling,propertyiddesired,TxDBSerialNum, rawtx):
 
 def updatedex2remaining(TxHash, TxDBSerialNum):
     #activeoffers subtract amount from remaining amount in db table
-    printdebug(("Starting updatedex2remaining"),8)
+    printdebug("Starting updatedex2remaining", 8)
     rawtrade=gettrade(TxHash)
 
-    printdebug(("TxHash, TxDBSerialNum, rawtrade"),9)
+    printdebug("TxHash, TxDBSerialNum, rawtrade", 9)
     printdebug((TxHash, TxDBSerialNum, rawtrade, "\n"),9)
 
 
@@ -965,8 +965,8 @@ def resetdextable_MP():
 def syncAddress(Address, Protocol):
     #sync address balance in db to match core's balance
     #mainly used for exodus dev msc distribution sync but is abstracted for any address
-    printdebug(("Starting syncAddress"),8)
-    printdebug(("Address, Protocol"),9)
+    printdebug("Starting syncAddress", 8)
+    printdebug("Address, Protocol", 9)
     printdebug((Address, Protocol),9)
 
     baldata=getallbalancesforaddress_MP(Address)['result']
@@ -1010,7 +1010,7 @@ def syncAddress(Address, Protocol):
 
 
 def resetbalances_MP():
-    printdebug(("Starting resetbalances_MP"),8)
+    printdebug("Starting resetbalances_MP", 8)
     #for now sync / reset balance data from omnicore balance list
     Protocol="Omni"
 
@@ -1019,12 +1019,12 @@ def resetbalances_MP():
 
     #Find all known properties in omnicore and cache data so we can work from it without worrying about changes in new blocks
     listlookup={}
-    printdebug(("resetbalances_MP: caching balances"),0)
+    printdebug("resetbalances_MP: caching balances", 0)
     for property in listproperties_MP()['result']:
       PropertyID = property['propertyid']
       listlookup[PropertyID]={'property':property, 'baldata': getallbalancesforid_MP(PropertyID)}
 
-    printdebug(("resetbalances_MP: processing cache"),0)
+    printdebug("resetbalances_MP: processing cache", 0)
     for PropertyID in listlookup:
       bal_data = listlookup[PropertyID]['baldata']
       property = listlookup[PropertyID]['property']
@@ -1077,7 +1077,7 @@ def resetbalances_MP():
                     (BalanceAvailable, BalanceReserved, BalanceAccepted, BalanceFrozen, Address, PropertyID) )
 
 def checkbalances_MP():
-    printdebug(("Starting checkbalances_MP"),8)
+    printdebug("Starting checkbalances_MP", 8)
 
     #for now sync / reset balance data from omnicore balance list
     Protocol="Omni"

@@ -2,7 +2,7 @@ import requests, getpass
 import time, json
 import sys
 
-class RPCHost():
+class RPCHost:
     def __init__(self):
         USER=getpass.getuser()
         self._session = requests.Session()
