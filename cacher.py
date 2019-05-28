@@ -32,7 +32,7 @@ def rKeys(key):
 
 def rSetNotUpdateBTC(baldata):
   fresh=baldata['fresh']
-  if fresh!=None and len(fresh)>0:
+  if fresh is not None and len(fresh)>0:
     for addr in fresh:
       rSet("omniwallet:balances:address:"+str(addr),json.dumps( {"bal":baldata['bal'][addr],"error":None}))
       rExpire("omniwallet:balances:address:"+str(addr),expTime)

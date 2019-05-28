@@ -13,11 +13,11 @@ def updateOrderbookCache():
     printmsg("Checking for orderbook updates")
     try:
       lasttrade = rGet("omniwallet:omnidex:lasttrade")
-      if lasttrade == None:
+      if lasttrade is None:
         lasttrade=0
 
       lastpending = rGet("omniwallet:omnidex:lastpending")
-      if lastpending == None:
+      if lastpending is None:
         lastpending = 0
 
       ret = getOrderbook(lasttrade,lastpending)

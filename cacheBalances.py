@@ -12,7 +12,7 @@ def updateBalancesCache():
     for space in rKeys("omniwallet:balances:addresses*"):
       try:
         addresses=rGet(space)
-        if addresses != None:
+        if addresses is not None:
           addresses = json.loads(addresses)
           printmsg("loaded "+str(len(addresses))+" addresses from redis "+str(space))
           balances=get_bulkbalancedata(addresses)

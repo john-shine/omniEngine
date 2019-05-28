@@ -21,15 +21,15 @@ for x in txs:
   addressbalances=dbSelect("select address,balanceavailable,balancereserved,balanceaccepted from addressbalances where propertyid=%s",[PropertyID])
   balance={}
   for x in addressbalances:
-    if x[1] == None:
+    if x[1] is None:
       dbBalanceAvailable = 0
     else:
       dbBalanceAvailable = x[1]
-    if x[2] == None:
+    if x[2] is None:
       dbBalanceReserved = 0
     else:
       dbBalanceReserved = x[2]
-    if x[3] == None:
+    if x[3] is None:
       dbBalanceAccepted = 0
     else:
       dbBalanceAccepted = x[3]
@@ -48,15 +48,15 @@ for x in txs:
     except KeyError:
       balance[Address]={ 'available': 0, 'reserved': 0, 'accepted': 0}
 
-    if bal[1] == None:
+    if bal[1] is None:
       available = balance[Address]['available']
     else:
       available = balance[Address]['available']-bal[1]
-    if bal[2] == None:
+    if bal[2] is None:
       reserved = balance[Address]['reserved']
     else:
       reserved = balance[Address]['reserved']-bal[2]
-    if bal[3] == None:
+    if bal[3] is None:
       accepted = balance[Address]['accepted']
     else:
       accepted = balance[Address]['accepted']-bal[3]

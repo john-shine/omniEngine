@@ -3,7 +3,7 @@ from sql import *
 
 
 def processSTO(Sender, Amount, PropertyID, Protocol, TxDBSerialNum, owners=None):
-    if owners == None:
+    if owners is None:
       #get list of owners sorted by most held to least held and by address alphabetically
       owners=sortSTO(dbSelect("select address, balanceavailable from addressbalances where balanceavailable > 0 "
                               "and address != %s and propertyid=%s", (Sender, PropertyID)))

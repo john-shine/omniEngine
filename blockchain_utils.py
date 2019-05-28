@@ -30,7 +30,7 @@ except:
   expTime=600
 
 def bc_getutxo(address, ramount, page=1, retval=None, avail=0):
-  if retval==None:
+  if retval is None:
     retval=[]
   try:
     r = requests.get(BLOCKTRAIL_API_URL + '/address/'+address+'/unspent-outputs?api_key='+str(BTAPIKEY)+'&limit=200&page='+str(page))
@@ -40,8 +40,8 @@ def bc_getutxo(address, ramount, page=1, retval=None, avail=0):
       print "got unspent list (btrail)", response
       for tx in unspents:
         txUsed=gettxout(tx['hash'],tx['index'])
-        isUsed = ('result' in txUsed and txUsed['result']==None)
-        if not isUsed and txUsed['result']['confirmations'] > 0 and tx['multisig']==None:
+        isUsed = ('result' in txUsed and txUsed['result'] is None)
+        if not isUsed and txUsed['result']['confirmations'] > 0 and tx['multisig'] is None:
           avail += tx['value']
           retval.append([ tx['hash'], tx['index'], tx['value'] ])
           if avail >= ramount:
@@ -68,7 +68,7 @@ def bc_getutxo_blockcypher(address, ramount):
       avail = 0
       for tx in unspents:
         txUsed=gettxout(tx['tx_hash'],tx['tx_output_n'])
-        isUsed = ('result' in txUsed and txUsed['result']==None)
+        isUsed = ('result' in txUsed and txUsed['result'] is None)
         if tx['confirmations'] > 0 and not isUsed:
           avail += tx['value']
           retval.append([ tx['tx_hash'], tx['tx_output_n'], tx['value'] ])
@@ -95,7 +95,7 @@ def bc_getutxo_blockr(address, ramount):
       avail = 0
       for tx in unspents:
         txUsed=gettxout(tx['tx'],tx['n'])
-        isUsed = ('result' in txUsed and txUsed['result']==None)
+        isUsed = ('result' in txUsed and txUsed['result'] is None)
         if tx['confirmations'] > 0 and not isUsed:
           tx['amount'] =  int(decimal.Decimal(tx['amount'])*decimal.Decimal(1e8))
           avail += tx['amount']

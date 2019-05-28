@@ -46,7 +46,7 @@ def get_balancedata(address):
         res['pendingneg'] = str(long(balrow[4]))
         if cID == '0':
           #get btc balance from bc api's
-          if err != None or out == '':
+          if err is not None or out == '':
             #btc_balance[ 'value' ] = str(long(-555))
             btc_balance[ 'value' ] = str(long(0))
           else:
@@ -76,7 +76,7 @@ def get_balancedata(address):
 
     if addbtc:
       btc_balance = { 'symbol': 'BTC', 'divisible': True, 'id' : 0 }
-      if err != None or out == '':
+      if err is not None or out == '':
         #btc_balance[ 'value' ] = str(long(-555))
         btc_balance[ 'value' ] = str(long(0))
       else:
@@ -152,7 +152,7 @@ def get_bulkbalancedata(addresses):
         res['pendingneg'] = str(long(balrow[4]))
         if cID == '0':
           #get btc balance from bc api's
-          if err != None or out == '':
+          if err is not None or out == '':
             #btc_balance[ 'value' ] = str(long(-555))
             btc_balance[ 'value' ] = str(long(0))
           else:
@@ -182,7 +182,7 @@ def get_bulkbalancedata(addresses):
 
       if addbtc:
         btc_balance = { 'symbol': 'BTC', 'divisible': True, 'id' : 0 }
-        if err != None or out == '':
+        if err is not None or out == '':
           #btc_balance[ 'value' ] = str(long(-555))
           btc_balance[ 'value' ] = str(long(0))
         else:

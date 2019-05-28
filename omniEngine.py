@@ -114,7 +114,7 @@ else:
 
       #Status update every 10 blocks
       if height % 10 == 0 or currentBlock:
-        if lastStatusUpdateTime == None:
+        if lastStatusUpdateTime is None:
           printdebug(("Block",height,"of",endBlock),1)
           lastStatusUpdateTime=datetime.now()
         else:

@@ -50,19 +50,19 @@ def reparsetx_MP(txhash):
           linkedtxdbserialnum=entry[8]
 
           #figure out how much 'moved' and undo it in addressbalances
-          if entry[4] == None:
+          if entry[4] is None:
             dbBalanceAvailable = 0
           else:
             dbBalanceAvailable = entry[4]*-1
-          if entry[5] == None:
+          if entry[5] is None:
             dbBalanceReserved = 0
           else:
             dbBalanceReserved = entry[5]*-1
-          if entry[6] == None:
+          if entry[6] is None:
             dbBalanceAccepted = 0
           else:
             dbBalanceAccepted = entry[6]*-1
-          if entry[7] == None:
+          if entry[7] is None:
             dbBalanceFrozen = 0
           else:
             dbBalanceFrozen = entry[7]*-1
@@ -131,15 +131,15 @@ def reorgRollback(block):
           linkedtxdbserialnum=entry[7]
 
           #figure out how much 'moved' and undo it in addressbalances
-          if entry[4] == None:
+          if entry[4] is None:
             dbBalanceAvailable = 0
           else:
             dbBalanceAvailable = entry[4]*-1
-          if entry[5] == None:
+          if entry[5] is None:
             dbBalanceReserved = 0
           else:
             dbBalanceReserved = entry[5]*-1
-          if entry[6] == None:
+          if entry[6] is None:
             dbBalanceAccepted = 0
           else:
             dbBalanceAccepted = entry[6]*-1
@@ -388,7 +388,7 @@ def sendToOwners(Sender, Amount, PropertyID, Protocol, TxDBSerialNum, owners=Non
     printdebug(("Sender, Amount, PropertyID, Protocol, TxDBSerialNum, owners"),9)
     printdebug((Sender, Amount, PropertyID, Protocol, TxDBSerialNum, owners, "\n"),9)
 
-    if owners == None:
+    if owners is None:
       #get list of owners sorted by most held to least held and by address alphabetically
       owners=sortSTO(dbSelect("select address, balanceavailable from addressbalances where balanceavailable > 0 "
                               "and address != %s and propertyid=%s", (Sender, PropertyID)))
@@ -663,7 +663,7 @@ def updatedex(rawtx, TxDBSerialNum, Protocol):
       printdebug("cancelling any active offers for :", 4)
       printdebug("State, TxDBSerialNum, Address, propertyiddesired, propertyidselling",4)
       printdebug((State, TxDBSerialNum, Address, propertyiddesired, propertyidselling),4)
-      if amount != None:
+      if amount is not None:
         printdebug(("found old sale",createtxdbserialnum,"with amount remaining",amount),4)
 
       #we'll let the insertaddressintx function handle updating the balanace for cancels
@@ -675,7 +675,7 @@ def updatedex(rawtx, TxDBSerialNum, Protocol):
       dbExecute("update activeoffers set offerstate=%s, LastTxDBSerialNum=%s where seller=%s and offerstate='active' and propertyiddesired=%s and propertyidselling=%s",
                 (State, TxDBSerialNum, Address, propertyiddesired, propertyidselling) )
 
-      if amount != None:
+      if amount is not None:
         printdebug(("replacing old sale",createtxdbserialnum,"with amount remaining",amount,"with newsale",TxDBSerialNum),4)
         #return the amount available/not accepted to users Available balance
         BalanceAvailable=amount
@@ -861,11 +861,11 @@ def updatemarkets(propertyidselling,propertyiddesired,TxDBSerialNum, rawtx):
     else:
       lastprice=0
 
-    if supply==None:
+    if supply is None:
       supply=0
-    if unitprice==None:
+    if unitprice is None:
       unitprice=0
-    if lastprice==None:
+    if lastprice is None:
       lastprice=0
 
     dbExecute("with upsert as "
@@ -1127,17 +1127,17 @@ def checkbalances_MP():
 
         try:
           #check db for None/Null returns and convert to match core 0 output
-          if rows[0][1] == None:
+          if rows[0][1] is None:
             dbBalanceAvailable = 0
           else:
             dbBalanceAvailable = int(rows[0][1])
 
-          if rows[0][2] == None:
+          if rows[0][2] is None:
             dbBalanceReserved = 0
           else:
             dbBalanceReserved = int(rows[0][2])
 
-          if rows[0][3] == None:
+          if rows[0][3] is None:
             dbBalanceAccepted = 0
           else:
             dbBalanceAccepted = int(rows[0][3])
@@ -1240,7 +1240,7 @@ def updateBalance(Address, Protocol, PropertyID, Ecosystem, BalanceAvailable, Ba
         dbResvd=rows[0][1]
         dbAccpt=rows[0][2]
         dbFrzn=rows[0][3]
-        if LastTxDBSerialNum == None:
+        if LastTxDBSerialNum is None:
           LastTxDBSerialNum=rows[0][4]
 
         try:
@@ -1367,7 +1367,7 @@ def updateProperty(PropertyID, Protocol, LastTxDBSerialNum=None):
         printdebug("Updating Property. Not a Managed Property", 8)
 
     #if we where called with a tx update that otherwise just update json (expired by time update)
-    if LastTxDBSerialNum == None:
+    if LastTxDBSerialNum is None:
       dbExecute("update smartproperties set PropertyData=%s, Issuer=%s "
                 "where Protocol=%s and PropertyID=%s",
                 (json.dumps(rawprop), Issuer, Protocol, PropertyID))
@@ -1388,7 +1388,7 @@ def insertProperty(rawtx, Protocol, PropertyID=None):
       TxType = get_TxType(rawtx['result']['type'])
 
       #User PropertyID from tx unless specifically overwritten
-      if PropertyID == None:
+      if PropertyID is None:
         PropertyID = rawtx['result']['propertyid']
 
       PropertyDataJson = getproperty_MP(PropertyID)
@@ -1754,7 +1754,7 @@ def insertTxAddr(rawtx, Protocol, TxDBSerialNum, Block):
           if retval[1] is not None:
             linkedtxdbserialnum=retval[1]
           #if we got anything back from the updatedex function it means it was a cancel, update our values to use the cancel numbers
-          if remainder != None:
+          if remainder is not None:
             BalanceAvailableCreditDebit=remainder
             BalanceReservedCreditDebit=remainder*-1
           elif state == 'cancelled':
@@ -2092,7 +2092,7 @@ def insertTxAddr(rawtx, Protocol, TxDBSerialNum, Block):
         except KeyError:
           Receiver = None
         #check if the reference address is defined and its not the same as the sender
-        if Receiver != None and Receiver != Address and Receiver != "":
+        if Receiver is not None and Receiver != Address and Receiver != "":
           dbExecute("insert into addressesintxs "
                     "(Address, PropertyID, Protocol, TxDBSerialNum, AddressTxIndex, AddressRole, BalanceAvailableCreditDebit, BalanceReservedCreditDebit, BalanceAcceptedCreditDebit)"
                     "values(%s, %s, %s, %s, %s, %s, %s, %s, %s)",

@@ -144,7 +144,7 @@ def upsertRate(protocol1, propertyid1, protocol2, propertyid2, rate, source, tim
     printdebug(("Error, can't insert invalid propertyids", propertyid1, "for", propertyid2), 4)
     return
 
-  if timestamp==None:
+  if timestamp is None:
     # if we have a record with the same exchangerate / source just update timestamp, otherwise insert new record
     dbExecute("with upsert as "
                 "(update exchangerates set asof=DEFAULT where protocol1=%s and propertyid1=%s and "
@@ -236,7 +236,7 @@ def updateOMNISP():
     for x in ROWS:
       sp=x[0]  
       src=getSource(sp)
-      if src != None:
+      if src is not None:
         try:
           if 'source' in src and src['source'] == 'coinmarketcap':
             value=Decimal(cmcData[src['id']]['price_btc'])
