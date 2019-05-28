@@ -6,27 +6,32 @@ class RPCHost():
         USER=getpass.getuser()
         self._session = requests.Session()
         try:
-            with open('/home/'+USER+'/.bitcoin/bitcoin.conf') as fp:
-                RPCPORT="8332"
-                RPCHOST="localhost"
-                RPCSSL=False
-                for line in fp:
-                    #print line
-                    if line.split('=')[0] == "testnet" and line.split('=')[1] == "1":
-                        RPCPORT="18332"
-                    elif line.split('=')[0] == "rpcuser":
-                        RPCUSER=line.split('=')[1].strip()
-                    elif line.split('=')[0] == "rpcpassword":
-                        RPCPASS=line.split('=')[1].strip()
-                    elif line.split('=')[0] == "rpcconnect":
-                        RPCHOST=line.split('=')[1].strip()
-                    elif line.split('=')[0] == "rpcport":
-                        RPCPORT=line.split('=')[1].strip()
-                    elif line.split('=')[0] == "rpcssl":
-                        if line.split('=')[1].strip() == "1":
-                            RPCSSL=True
-                        else:
-                            RPCSSL=False
+            RPCUSER = 'bitcoinrpc'
+            RPCPASS = '0b21d20725d6db34c3a980e26bb5425c'
+            RPCHOST = '10.5.75.218'
+            RPCPORT = '58332'
+            RPCSSL = False
+            # with open('/home/'+USER+'/.bitcoin/bitcoin.conf') as fp:
+            #     RPCPORT="8332"
+            #     RPCHOST="localhost"
+            #     RPCSSL=False
+            #     for line in fp:
+            #         #print line
+            #         if line.split('=')[0] == "testnet" and line.split('=')[1] == "1":
+            #             RPCPORT="18332"
+            #         elif line.split('=')[0] == "rpcuser":
+            #             RPCUSER=line.split('=')[1].strip()
+            #         elif line.split('=')[0] == "rpcpassword":
+            #             RPCPASS=line.split('=')[1].strip()
+            #         elif line.split('=')[0] == "rpcconnect":
+            #             RPCHOST=line.split('=')[1].strip()
+            #         elif line.split('=')[0] == "rpcport":
+            #             RPCPORT=line.split('=')[1].strip()
+            #         elif line.split('=')[0] == "rpcssl":
+            #             if line.split('=')[1].strip() == "1":
+            #                 RPCSSL=True
+            #             else:
+            #                 RPCSSL=False
         except IOError as e:
             response='{"error": "Unable to load bitcoin config file. Please Notify Site Administrator"}'
             return response

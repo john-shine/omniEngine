@@ -6,26 +6,31 @@ def sql_connect(OUSER=None,OPASS=None):
     global con
     USER=getpass.getuser()
     try:
-      with open('/home/'+USER+'/.omni/sql.conf') as fp:
         DBPORT="5432"
-        for line in fp:
+        DBUSER="omniengine"
+        DBPASS="omnienginePassword"
+        DBHOST="10.5.71.192"
+        DBNAME="omniwallet"
+      # with open('/home/'+USER+'/.omni/sql.conf') as fp:
+      #   DBPORT="5432"
+      #   for line in fp:
           #print line
-          if line.split('=')[0] == "sqluser":
-            if OUSER==None:
-              DBUSER=line.split('=')[1].strip()
-            else:
-              DBUSER=OUSER
-          elif line.split('=')[0] == "sqlpassword":
-            if OPASS==None:
-              DBPASS=line.split('=')[1].strip()
-            else:
-              DBPASS=OPASS
-          elif line.split('=')[0] == "sqlconnect":
-            DBHOST=line.split('=')[1].strip()
-          elif line.split('=')[0] == "sqlport":
-            DBPORT=line.split('=')[1].strip()
-          elif line.split('=')[0] == "sqldatabase":
-            DBNAME=line.split('=')[1].strip()
+      #     if line.split('=')[0] == "sqluser":
+      #       if OUSER==None:
+      #         DBUSER=line.split('=')[1].strip()
+      #       else:
+      #         DBUSER=OUSER
+      #     elif line.split('=')[0] == "sqlpassword":
+      #       if OPASS==None:
+      #         DBPASS=line.split('=')[1].strip()
+      #       else:
+      #         DBPASS=OPASS
+      #     elif line.split('=')[0] == "sqlconnect":
+      #       DBHOST=line.split('=')[1].strip()
+      #     elif line.split('=')[0] == "sqlport":
+      #       DBPORT=line.split('=')[1].strip()
+      #     elif line.split('=')[0] == "sqldatabase":
+      #       DBNAME=line.split('=')[1].strip()
     except IOError as e:
       response='{"error": "Unable to load sql config file. Please Notify Site Administrator"}'
       return response
