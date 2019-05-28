@@ -14,3 +14,17 @@ TESTNET = False
 
 #CoinMarketCap API Key
 CMCKEY = ''
+
+# tether RPC config
+RPCUSER = ''
+RPCPASS = ''
+RPCHOST = ''
+RPCPORT = 0
+RPCSSL = False
+
+# database config
+DBPORT = 0
+DBUSER = ''
+DBPASS = ''
+DBHOST = ''
+DBNAME = ''
