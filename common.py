@@ -17,4 +17,4 @@ def printdebug(msg, verbose):
                 temp += str(x) + " "
             msg = temp
 
-        print str(datetime.now()) + str(msg)
+        print str(datetime.now()) + ' ' + str(msg)

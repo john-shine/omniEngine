@@ -8,7 +8,7 @@ def get_logger(name, level=None):
     logger = logging.getLogger(name)
     logger.setLevel(level)
 
-    if not logger.hasHandlers():
+    if not logger.handlers:
         fmt = logging.Formatter(
             fmt="%(asctime)-11s %(name)s:%(lineno)d %(levelname)s: %(message)s", 
             datefmt="[%Y/%m/%d-%H:%M:%S]"

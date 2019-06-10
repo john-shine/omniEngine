@@ -1,4 +1,3 @@
-import datetime
 import decimal
 import math
 
@@ -6,6 +5,7 @@ from common import *
 from mscutils import *
 from rpcclient import *
 from sqltools import *
+import datetime
 
 
 def reparsetx_MP(txhash):
