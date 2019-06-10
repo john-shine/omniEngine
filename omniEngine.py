@@ -1,17 +1,18 @@
 import os.path
-
 import config
 
 from cacher import *
 from sql import *
 
-USER = getpass.getuser()
-lockFile = '/tmp/omniEngine.lock.' + str(USER)
 from datetime import datetime
 from datetime import timedelta
+from logger import get_logger
+
+lockFile = '/tmp/omniEngine.lock.{}'.format(getpass.getuser())
 now = datetime.now()
 sys.argv.pop(0)
 lastStatusUpdateTime = None
+logger = get_logger('omniEngine')
 
 if os.path.isfile(lockFile):
     # open the lock file to read pid and timestamp
@@ -21,12 +22,12 @@ if os.path.isfile(lockFile):
     pid = data.split(',')[0]
     timestamp = data.split(',')[1]
     # check if the pid is still running
-    if os.path.exists("/proc/" + str(pid)):
-        print "Exiting: OmniEngine already running with pid:", pid, "  Last parse started at ", timestamp
+    if os.path.exists('/proc/' + str(pid)):
+        logger.info('Exit: OmniEngine already running with pid: %s. Last parse started at: %s', pid, timestamp)
     else:
-        print "Stale OmniEngine found, no running pid:", pid, " Process last started at: ", timestamp
-        print "Removing lock file:%s and waiting for restart" % lockFile
+        logger.info('Stale OmniEngine found, no running pid: %s. Process last started at: %s', pid, timestamp)
         os.remove(lockFile)
+        logger.info('Removed lock file: %s and waiting for restart', lockFile)
     # exit program and wait for next run
     exit(1)
 else:
@@ -76,18 +77,18 @@ else:
         else:
             # reorg took place
             try:
-                print "Reorg detected, Attempting roll back to ", checkBlock - 1
+                logger.info('Reorg detected, Attempting roll back to: %s', checkBlock - 1)
                 reorgRollback(checkBlock - 1)
                 currentBlock = checkBlock
                 dbCommit()
                 break
             except Exception, e:
                 # Catch any issues and stop processing. Try to undo any incomplete changes
-                print "Problem with ", e
+                logger.exception('Problem with: %s', e)
                 if dbRollback():
-                    print "Database rolledback, last successful block", (currentBlock - 1)
+                    logger.info('Database rolledback, last successful block: %s', currentBlock - 1)
                 else:
-                    print "Problem rolling database back, check block data for", currentBlock
+                    logger.info('Problem rolling database back, check block data for: %s', currentBlock)
                 exit(1)
 
     if currentBlock > endBlock:
@@ -206,11 +207,11 @@ else:
 
         except Exception, e:
             # Catch any issues and stop processing. Try to undo any incomplete changes
-            print "Problem with ", e
+            logger.exception('Problem with: %s', e)
             if dbRollback():
-                print "Database rolledback, last successful block", (currentBlock - 1)
+                logger.info('Database rolledback, last successful block: %s', currentBlock - 1)
             else:
-                print "Problem rolling database back, check block data for", currentBlock
+                logger.info('Problem rolling database back, check block data for: %s', currentBlock)
             os.remove(lockFile)
             exit(1)
 
@@ -218,7 +219,7 @@ else:
             # Also make sure we update the txstats data per block
             updateTxStats()
             dbCommit()
-            printdebug("TxStats updated", 0)
+            printdebug('TxStats updated', 0)
         except:
             pass
 
@@ -237,14 +238,14 @@ else:
     try:
         updateAddPending()
         dbCommit()
-        printdebug("Pending List updated", 0)
+        printdebug('Pending List updated', 0)
     except Exception, e:
         # Catch any issues and stop processing. Try to undo any incomplete changes
-        print "Problem updating pending ", e
+        logger.exception('Problem updating pending: %s', e)
         if dbRollback():
-            print "Database rolledback"
+            logger.info('Database rolledback')
         else:
-            print "Problem rolling database back, check pending data"
+            logger.info('Problem rolling database back, check pending data')
         os.remove(lockFile)
         exit(1)
 

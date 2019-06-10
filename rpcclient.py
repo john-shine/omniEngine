@@ -4,8 +4,11 @@ import sys
 import time
 
 import requests
+from logger import get_logger
 from config import RPCUSER, RPCPASS, RPCHOST, RPCPORT, RPCSSL
 
+
+logger = get_logger('rpcclient')
 
 class RPCHost:
     def __init__(self):
@@ -13,9 +16,9 @@ class RPCHost:
         self._session = requests.Session()
 
         if RPCSSL:
-            self._url = "https://{}:{}@{}:{}".format(RPCUSER, RPCPASS, RPCHOST, RPCPORT)
+            self._url = 'https://{}:{}@{}:{}'.format(RPCUSER, RPCPASS, RPCHOST, RPCPORT)
         else:
-            self._url = "http://{}:{}@{}:{}".format(RPCUSER, RPCPASS, RPCHOST, RPCPORT)
+            self._url = 'http://{}:{}@{}:{}'.format(RPCUSER, RPCPASS, RPCHOST, RPCPORT)
 
         self._headers = {'content-type': 'application/json'}
 
@@ -31,13 +34,11 @@ class RPCHost:
                 if tries == 0:
                     raise Exception('Failed to connect for remote procedure call.')
                 hadFailedConnections = True
-                print(
-                    "Couldn't connect for remote procedure call, will sleep for ten seconds and then try again ({} more tries)".format(
-                        tries))
+                logger.info('Couldn`t connect for remote procedure call, will sleep for ten seconds and then try again ({} more tries)'.format(tries))
                 time.sleep(10)
             else:
                 if hadConnectionFailures:
-                    print('Connected for remote procedure call after retry.')
+                    logger.info('Connected for remote procedure call after retry.')
                 break
 
         if not response.status_code in (200, 500):
@@ -46,7 +47,7 @@ class RPCHost:
         responseJSON = response.json()
         if 'error' in responseJSON and responseJSON['error'] is not None:
             raise Exception('Error in ' + rpcMethod + ' RPC call: ' + str(responseJSON['error']))
-        # return responseJSON['result']
+
         return responseJSON
 
 

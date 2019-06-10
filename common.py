@@ -1,3 +1,5 @@
+from datetime import datetime
+
 # default debug
 debug = 0
 
@@ -14,4 +16,5 @@ def printdebug(msg, verbose):
             for x in msg:
                 temp += str(x) + " "
             msg = temp
-        print str(msg)
+
+        print str(datetime.now()) + str(msg)

@@ -1,9 +1,12 @@
 import sys
+from logger import get_logger
 
+
+logger = get_logger('cacher')
 try:
     import config
 except ImportError:
-    print('config.py is not exist, is it set?')
+    logger.info('config.py is not exist, is it set?')
     sys.exit(1)
 
 import redis

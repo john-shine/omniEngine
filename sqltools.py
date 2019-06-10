@@ -1,10 +1,12 @@
 import getpass
 import sys
-
 import psycopg2
 import psycopg2.extras
+from logger import get_logger
 
 from config import DBPORT, DBUSER, DBPASS, DBHOST, DBNAME
+
+logger = get_logger('sqltools')
 
 
 def sql_connect(OUSER=None, OPASS=None):
@@ -16,7 +18,7 @@ def sql_connect(OUSER=None, OPASS=None):
         cur = con.cursor(cursor_factory=psycopg2.extras.DictCursor)
         return cur
     except psycopg2.DatabaseError, e:
-        print 'Error %s' % e
+        logger.exception('Error %s', e)
         sys.exit(1)
 
 
@@ -37,7 +39,7 @@ def dbSelect(statement, values=None):
         ROWS = dbc.fetchall()
         return ROWS
     except psycopg2.DatabaseError, e:
-        print 'Error', e, 'Rollback returned: ', dbRollback()
+        logger.exception('Error: %s. Rollback returned: %s', e, dbRollback())
         sys.exit(1)
 
 
@@ -46,7 +48,7 @@ def dbExecute(statement, values=None):
     try:
         dbc.execute(statement, values)
     except psycopg2.DatabaseError, e:
-        print 'Error', e, 'Rollback returned: ', dbRollback()
+        logger.exception('Error: %s. Rollback returned: %s', e, dbRollback())
         sys.exit(1)
 
 
@@ -57,14 +59,14 @@ def dbUpgradeExecute(ouser, opass, statement, values=None):
         dbc.execute(statement, values)
         con.set_session(autocommit=False)
     except psycopg2.DatabaseError, e:
-        print 'Error', e, 'Rollback returned: ', dbRollback()
+        logger.exception('Error: %s. Rollback returned: %s', e, dbRollback())
 
 
 def dbCommit():
     try:
         con.commit()
     except psycopg2.DatabaseError, e:
-        print 'Error', e, 'Rollback returned: ', dbRollback()
+        logger.exception('Error: %s. Rollback returned: %s', e, dbRollback())
         sys.exit(1)
 
 
@@ -79,4 +81,5 @@ def dbRollback():
 def decimal_default(obj):
     if isinstance(obj, decimal.Decimal):
         return float(obj)
+
     raise TypeError
