@@ -13,9 +13,10 @@ class RPCHost:
         self._session = requests.Session()
 
         if RPCSSL:
-            self._url = "https://" + RPCUSER + ":" + RPCPASS + "@" + RPCHOST + ":" + RPCPORT
+            self._url = "https://{}:{}@{}:{}".format(RPCUSER, RPCPASS, RPCHOST, RPCPORT)
         else:
-            self._url = "http://" + RPCUSER + ":" + RPCPASS + "@" + RPCHOST + ":" + RPCPORT
+            self._url = "http://{}:{}@{}:{}".format(RPCUSER, RPCPASS, RPCHOST, RPCPORT)
+
         self._headers = {'content-type': 'application/json'}
 
     def call(self, rpcMethod, *params):
@@ -38,8 +39,10 @@ class RPCHost:
                 if hadConnectionFailures:
                     print('Connected for remote procedure call after retry.')
                 break
+
         if not response.status_code in (200, 500):
-            raise Exception('RPC connection failure: ' + str(response.status_code) + ' ' + response.reason)
+            raise Exception('RPC connection: %s failure: %s, %s' % (self._url, response.status_code, response.reason))
+
         responseJSON = response.json()
         if 'error' in responseJSON and responseJSON['error'] is not None:
             raise Exception('Error in ' + rpcMethod + ' RPC call: ' + str(responseJSON['error']))

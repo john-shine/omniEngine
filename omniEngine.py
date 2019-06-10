@@ -1,6 +1,4 @@
 import os.path
-from datetime import datetime
-from datetime import timedelta
 
 import config
 
@@ -9,6 +7,8 @@ from sql import *
 
 USER = getpass.getuser()
 lockFile = '/tmp/omniEngine.lock.' + str(USER)
+from datetime import datetime
+from datetime import timedelta
 now = datetime.now()
 sys.argv.pop(0)
 lastStatusUpdateTime = None
@@ -25,7 +25,7 @@ if os.path.isfile(lockFile):
         print "Exiting: OmniEngine already running with pid:", pid, "  Last parse started at ", timestamp
     else:
         print "Stale OmniEngine found, no running pid:", pid, " Process last started at: ", timestamp
-        print "Removing lock file and waiting for restart"
+        print "Removing lock file:%s and waiting for restart" % lockFile
         os.remove(lockFile)
     # exit program and wait for next run
     exit(1)
