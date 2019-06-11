@@ -1,5 +1,6 @@
 import getpass
 import sys
+import decimal
 import psycopg2
 import psycopg2.extras
 from logger import get_logger
@@ -8,15 +9,24 @@ from config import DBPORT, DBUSER, DBPASS, DBHOST, DBNAME
 
 logger = get_logger('sqltools')
 
+con = dbc = None
+
 
 def sql_connect(OUSER=None, OPASS=None):
     global con
-    USER = getpass.getuser()
 
+    USER = getpass.getuser()
     try:
-        con = psycopg2.connect(database=DBNAME, user=DBUSER, password=DBPASS, host=DBHOST, port=DBPORT)
-        cur = con.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        return cur
+        if con is None:
+            con = psycopg2.connect(
+                database=DBNAME, 
+                user=DBUSER, 
+                password=DBPASS, 
+                host=DBHOST, 
+                port=DBPORT
+            )
+
+        return con
     except psycopg2.DatabaseError, e:
         logger.exception('Error %s', e)
         sys.exit(1)
@@ -25,11 +35,12 @@ def sql_connect(OUSER=None, OPASS=None):
 def dbInit(ouser=None, opass=None):
     # Prime the DB Connection, it can be restarted in the select/execute statement if it gets closed prematurely.
     global dbc
-    try:
-        if dbc.closed:
-            dbc = sql_connect(ouser, opass)
-    except NameError:
-        dbc = sql_connect(ouser, opass)
+
+    if dbc is None or dbc.closed:
+        con = sql_connect()
+        dbc = con.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+    return dbc
 
 
 def dbSelect(statement, values=None):
@@ -73,9 +84,10 @@ def dbCommit():
 def dbRollback():
     if con:
         con.rollback()
-        return 1
+
+        return True
     else:
-        return 0
+        return False
 
 
 def decimal_default(obj):
