@@ -19,8 +19,12 @@ if os.path.isfile(lockFile):
     file = open(lockFile, 'r')
     data = file.readline()
     file.close()
-    pid = data.split(',')[0]
-    timestamp = data.split(',')[1]
+    try:
+        pid, timestamp = data.split(',')
+    except Exception, e:
+        logger.error('unable get pid from lockFile: %s', lockFile)
+        sys.exit(1)
+
     # check if the pid is still running
     if os.path.exists('/proc/' + str(pid)):
         logger.info('Exit: OmniEngine already running with pid: %s. Last parse started at: %s', pid, timestamp)
@@ -29,7 +33,7 @@ if os.path.isfile(lockFile):
         os.remove(lockFile)
         logger.info('Removed lock file: %s and waiting for restart', lockFile)
     # exit program and wait for next run
-    exit(1)
+    sys.exit(1)
 else:
     # start/create our lock file
     file = open(lockFile, "w")
@@ -89,7 +93,7 @@ else:
                     logger.info('Database rolledback, last successful block: %s', currentBlock - 1)
                 else:
                     logger.info('Problem rolling database back, check block data for: %s', currentBlock)
-                exit(1)
+                sys.exit(1)
 
     if currentBlock > endBlock:
         printdebug("Already up to date", 0)
@@ -213,7 +217,7 @@ else:
             else:
                 logger.info('Problem rolling database back, check block data for: %s', currentBlock)
             os.remove(lockFile)
-            exit(1)
+            sys.exit(1)
 
         try:
             # Also make sure we update the txstats data per block
@@ -247,7 +251,7 @@ else:
         else:
             logger.info('Problem rolling database back, check pending data')
         os.remove(lockFile)
-        exit(1)
+        sys.exit(1)
 
     # remove the lock file and let ourself finish
     os.remove(lockFile)
