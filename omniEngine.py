@@ -1,12 +1,15 @@
 import os.path
 import config
+import getpass
 
 from cacher import *
 from sql import *
 
+from common import setdebug
 from datetime import datetime
 from datetime import timedelta
 from logger import get_logger
+from rpcclient import getinfo, getblockhash
 
 lockFile = '/tmp/omniEngine.lock.{}'.format(getpass.getuser())
 now = datetime.now()
