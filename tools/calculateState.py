@@ -1,4 +1,5 @@
-from sql import *
+from sql import sendToOwners
+from sqltools import dbSelect, dbCommit
 
 txs = dbSelect(
     "select tx.txblocknumber,tx.txdbserialnum,atx.address,atx.propertyid,atx.balanceavailablecreditdebit from transactions tx, addressesintxs atx "

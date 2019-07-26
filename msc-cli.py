@@ -1,4 +1,6 @@
-from rpcclient import *
+import sys
+import json
+from rpcclient import RPCHost
 
 host = RPCHost()
 
@@ -9,7 +11,7 @@ try:
         rpccall = sys.argv.pop(0)
         try:
             data = host.call(rpccall, sys.argv[0], int(sys.argv[1]))
-        except:
+        except Exception, e:
             data = host.call(rpccall, sys.argv[0], str(sys.argv[1]))
     elif len(sys.argv) == 2:
         if sys.argv[1].isdigit():

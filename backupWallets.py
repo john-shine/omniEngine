@@ -1,7 +1,7 @@
 import os.path
 from datetime import datetime
-from sqltools import *
-from common import *
+from sqltools import dbSelect
+from common import setdebug
 
 
 def backupWallets():

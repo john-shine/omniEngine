@@ -1,4 +1,5 @@
-from sql import *
+from sql import (dbSelect, insertProperty)
+from sqltools import (dbInit, dbCommit)
 
 dbInit()
 rows = dbSelect("select txdbserialnum from transactions t where t.txtype=50 or t.txtype=51 or t.txtype=54")

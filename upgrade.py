@@ -1,6 +1,6 @@
 import sys
 
-from sql import *
+from sqltools import dbUpgradeExecute, dbRollback
 
 try:
     from getpass import getpass

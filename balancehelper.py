@@ -49,8 +49,7 @@ def get_balancedata(address):
         if cID == '0':
             # get btc balance from bc api's
             if err is not None or out == '':
-                # btc_balance[ 'value' ] = str(long(-555))
-                btc_balance['value'] = str(long(0))
+                res['value'] = str(long(0))
             else:
                 try:
                     if balrow[4] < 0:
@@ -58,7 +57,7 @@ def get_balancedata(address):
                     else:
                         res['value'] = str(long(out))
                 except ValueError:
-                    btc_balance['value'] = str(long(0))
+                    res['value'] = str(long(0))
         else:
             # get regular balance from db
             if balrow[4] < 0:
@@ -155,8 +154,7 @@ def get_bulkbalancedata(addresses):
             if cID == '0':
                 # get btc balance from bc api's
                 if err is not None or out == '':
-                    # btc_balance[ 'value' ] = str(long(-555))
-                    btc_balance['value'] = str(long(0))
+                    res['value'] = str(long(0))
                 else:
                     try:
                         if balrow[4] < 0:
@@ -164,7 +162,7 @@ def get_bulkbalancedata(addresses):
                         else:
                             res['value'] = str(long(out))
                     except ValueError:
-                        btc_balance['value'] = str(long(0))
+                        res['value'] = str(long(0))
             else:
                 # get regular balance from db
                 if balrow[4] < 0:

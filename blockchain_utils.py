@@ -1,6 +1,4 @@
 import decimal
-
-import config
 import requests
 from config import BTAPIKEY
 

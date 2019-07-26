@@ -1,9 +1,7 @@
-import getpass
 import json
-import sys
 import time
-
 import requests
+import getpass
 from logger import get_logger
 from config import RPCUSER, RPCPASS, RPCHOST, RPCPORT, RPCSSL
 
