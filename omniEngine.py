@@ -253,6 +253,13 @@ else:
         os.remove(lockFile)
         sys.exit(1)
 
+    try:
+        # Also make sure we update the last run
+        updateLastRun()
+        dbCommit()
+    except:
+        pass
+
     # remove the lock file and let ourself finish
     os.remove(lockFile)
 
