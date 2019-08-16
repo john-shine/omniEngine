@@ -33,7 +33,7 @@ def bc_getutxo(address, ramount, page=1, retval=None, avail=0):
         retval = []
     try:
         r = requests.get(BLOCKTRAIL_API_URL + '/address/' + address + '/unspent-outputs?api_key=' + str(
-            BTAPIKEY) + '&limit=200&page=' + str(page))
+            BTAPIKEY) + '&limit=200&page=' + str(page), timeout=30)
         if r.status_code == 200:
             response = r.json()
             unspents = response['data']
@@ -58,7 +58,7 @@ def bc_getutxo(address, ramount, page=1, retval=None, avail=0):
 
 def bc_getutxo_blockcypher(address, ramount):
     try:
-        r = requests.get(BLOCKCYPHER_API_URL + '/addrs/' + address + '?unspentOnly=true')
+        r = requests.get(BLOCKCYPHER_API_URL + '/addrs/' + address + '?unspentOnly=true', timeout=30)
 
         if r.status_code == 200:
             unspents = r.json()['txrefs']
@@ -84,7 +84,7 @@ def bc_getutxo_blockcypher(address, ramount):
 
 def bc_getutxo_blockr(address, ramount):
     try:
-        r = requests.get(BLOCKR_API_URL + '/address/unspent/' + address + '?unconfirmed=1')
+        r = requests.get(BLOCKR_API_URL + '/address/unspent/' + address + '?unconfirmed=1', timeout=30)
 
         if r.status_code == 200:
             # Process and format response from blockr.io
@@ -116,7 +116,7 @@ def bc_getpubkey(address):
         if config.TESTNET:
             return "error: tried using blockchain.info api with testnet enabled"
 
-        r = requests.get(BLOCKCHAININFO_API_URL + '/q/pubkeyaddr/' + address)
+        r = requests.get(BLOCKCHAININFO_API_URL + '/q/pubkeyaddr/' + address, timeout=30)
 
         if r.status_code == 200:
             return str(r.text)
@@ -142,7 +142,7 @@ def bc_getbalance(address):
 
 def bc_getbalance_bitgo(address):
     try:
-        r = requests.get(BITGO_API_URL + '/address/' + address)
+        r = requests.get(BITGO_API_URL + '/address/' + address, timeout=30)
         if r.status_code == 200:
             balance = int(r.json()['confirmedBalance'])
             return {"bal": balance, "error": None}
@@ -154,7 +154,7 @@ def bc_getbalance_bitgo(address):
 
 def bc_getbalance_blockcypher(address):
     try:
-        r = requests.get(BLOCKCYPHER_API_URL + '/addrs/' + address + '/balance')
+        r = requests.get(BLOCKCYPHER_API_URL + '/addrs/' + address + '/balance', timeout=30)
         if r.status_code == 200:
             balance = int(r.json()['balance'])
             return {"bal": balance, "error": None}
@@ -166,7 +166,7 @@ def bc_getbalance_blockcypher(address):
 
 def bc_getbalance_blockr(address):
     try:
-        r = requests.get(BLOCKR_API_URL + '/address/balance/' + address)
+        r = requests.get(BLOCKR_API_URL + '/address/balance/' + address, timeout=30)
         if r.status_code == 200:
             balance = int(r.json()['data']['balance'] * 1e8)
             return {"bal": balance, "error": None}
@@ -252,7 +252,7 @@ def bc_getbulkbalance_blockonomics(addresses):
         if config.TESTNET:
             return "error: tried using blockonomics api with testnet enabled"
 
-        r = requests.post(BLOCKONOMICS_API_URL + '/balance', json.dumps({"addr": formatted}))
+        r = requests.post(BLOCKONOMICS_API_URL + '/balance', json.dumps({"addr": formatted}), timeout=30)
         if r.status_code == 200:
             balances = r.json()['response']
             retval = {}
@@ -274,7 +274,7 @@ def bc_getbulkbalance_blockr(addresses):
             formatted = formatted + "," + address
 
     try:
-        r = requests.get(BLOCKR_API_URL + '/address/balance/' + formatted)
+        r = requests.get(BLOCKR_API_URL + '/address/balance/' + formatted, timeout=30)
         if r.status_code == 200:
             balances = r.json()['data']
             retval = {}
@@ -298,7 +298,7 @@ def bc_getbulkbalance_blockchain(addresses):
         if config.TESTNET:
             return "error: tried using blockchain.info api with testnet enabled"
 
-        r = requests.get(BLOCKCHAININFO_API_URL + '/balance?active=' + formatted)
+        r = requests.get(BLOCKCHAININFO_API_URL + '/balance?active=' + formatted, timeout=30)
         if r.status_code == 200:
             balances = r.json()
             retval = {}

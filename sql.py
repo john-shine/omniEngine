@@ -1426,7 +1426,7 @@ def updateProperty(PropertyID, Protocol, LastTxDBSerialNum=None):
                    "issuer": "Satoshi Nakamoto", "url": "http://www.bitcoin.org", "propertyid": 0, "divisible": True}
         Issuer = rawprop['issuer']
         try:
-            r = requests.get('https://blockchain.info/q/totalbc')
+            r = requests.get('https://blockchain.info/q/totalbc', timeout=30)
             amt = int(r.text)
             rawprop['totaltokens'] = str(int(amt / 1e8))
         except:
